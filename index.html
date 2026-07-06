@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>麻雀点数計算</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header class="app-header">
+  <h1>🀄 麻雀点数計算</h1>
+</header>
+
+<!-- ======== 画面1: 手牌入力 ======== -->
+<div id="screen-input" class="screen active">
+  <p class="hint-text">牌をタップして手牌を入力してください</p>
+
+  <div id="hand-grid" class="hand-grid"></div>
+  <div id="hand-error" class="error-msg" style="min-height:24px;"></div>
+
+  <!-- 鳴き面子エリア -->
+  <div class="meld-area">
+    <h3>鳴き面子</h3>
+    <div id="meld-list" class="meld-list"></div>
+
+    <!-- 鳴き追加フォーム -->
+    <div class="meld-form" style="margin-top:12px;">
+      <h3>鳴きを追加</h3>
+      <div class="meld-type-select">
+        <button class="meld-type-btn active" data-type="pon">ポン</button>
+        <button class="meld-type-btn" data-type="chi">チー</button>
+        <button class="meld-type-btn" data-type="minkan">明槓</button>
+        <button class="meld-type-btn" data-type="ankan">暗槓</button>
+        <button class="meld-type-btn" data-type="kakan">加槓</button>
+      </div>
+      <div id="meld-tile-slots" class="meld-tile-slots"></div>
+      <button id="add-meld-btn" class="add-meld-btn" disabled>この鳴きを追加</button>
+    </div>
+  </div>
+
+  <button id="to-questions-btn" class="primary-btn" disabled>質問に進む →</button>
+</div>
+
+<!-- ======== 画面2: 質問フロー ======== -->
+<div id="screen-questions" class="screen">
+  <div class="progress-bar"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div>
+  <p id="step-label" class="hint-text">1 / 7</p>
+
+  <!-- Q1: 和了牌 -->
+  <div id="q-win-tile" class="question-card q-panel">
+    <p class="question-step">Q1</p>
+    <h2>和了牌はどれですか？</h2>
+    <div id="win-tile-area" class="win-tile-select"></div>
+  </div>
+
+  <!-- Q2: ツモ/ロン -->
+  <div id="q-tsumo-ron" class="question-card q-panel">
+    <p class="question-step">Q2</p>
+    <h2>ツモ和了ですか？ロン和了ですか？</h2>
+    <div class="options-grid">
+      <button class="option-btn" data-tsumo="true">ツモ</button>
+      <button class="option-btn" data-tsumo="false">ロン</button>
+    </div>
+  </div>
+
+  <!-- Q3: 親/子・自風・場風 -->
+  <div id="q-seat" class="question-card q-panel">
+    <p class="question-step">Q3</p>
+    <h2>立場と風を教えてください</h2>
+    <p class="section-title">親 / 子</p>
+    <div class="options-grid">
+      <button class="option-btn" data-dealer="true">親</button>
+      <button class="option-btn" data-dealer="false">子</button>
+    </div>
+    <p class="section-title">自風</p>
+    <div class="options-grid" style="grid-template-columns:1fr 1fr 1fr 1fr">
+      <button class="option-btn" data-seat="1z">東</button>
+      <button class="option-btn" data-seat="2z">南</button>
+      <button class="option-btn" data-seat="3z">西</button>
+      <button class="option-btn" data-seat="4z">北</button>
+    </div>
+    <p class="section-title">場風</p>
+    <div class="options-grid" style="grid-template-columns:1fr 1fr 1fr 1fr">
+      <button class="option-btn" data-round="1z">東場</button>
+      <button class="option-btn" data-round="2z">南場</button>
+      <button class="option-btn" data-round="3z">西場</button>
+      <button class="option-btn" data-round="4z">北場</button>
+    </div>
+  </div>
+
+  <!-- Q4: リーチ・一発 -->
+  <div id="q-riichi" class="question-card q-panel">
+    <p class="question-step">Q4</p>
+    <h2>リーチ状況を教えてください</h2>
+    <div class="options-grid three">
+      <button class="option-btn selected" data-riichi="none">なし</button>
+      <button class="option-btn" data-riichi="riichi">リーチ</button>
+      <button class="option-btn" data-riichi="double">ダブルリーチ</button>
+    </div>
+    <p class="section-title">一発</p>
+    <div class="options-grid">
+      <button class="option-btn selected" data-ippatsu="false">なし</button>
+      <button class="option-btn" data-ippatsu="true">一発あり</button>
+    </div>
+  </div>
+
+  <!-- Q5: ドラ表示牌 -->
+  <div id="q-dora" class="question-card q-panel">
+    <p class="question-step">Q5</p>
+    <h2>ドラ表示牌を入力してください</h2>
+    <p class="section-title">ドラ表示牌（通常ドラ）</p>
+    <div id="dora-slots" class="dora-indicators"></div>
+    <div id="ura-dora-section" style="display:none">
+      <p class="section-title">裏ドラ表示牌</p>
+      <div id="ura-dora-slots" class="dora-indicators"></div>
+    </div>
+    <p class="section-title" style="margin-top:16px;">本場（積み棒）</p>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+      <input id="honba-input" type="number" min="0" max="20" value="0"
+        style="width:70px;padding:8px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:16px;text-align:center">
+      <span style="font-size:14px;color:var(--text-muted)">本場</span>
+    </div>
+  </div>
+
+  <!-- Q6: 鳴き確認 -->
+  <div id="q-melds" class="question-card q-panel">
+    <p class="question-step">Q6</p>
+    <h2>鳴きはありましたか？</h2>
+    <div class="options-grid">
+      <button class="option-btn" data-has-melds="false">門前（鳴きなし）</button>
+      <button class="option-btn" data-has-melds="true">鳴きあり</button>
+    </div>
+    <div id="melds-confirm-area" style="margin-top:12px"></div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">
+      ※鳴き面子は手牌入力画面で登録します。手牌入力に戻って追加できます。
+    </p>
+  </div>
+
+  <!-- Q7: 特殊状況 -->
+  <div id="q-special" class="question-card q-panel">
+    <p class="question-step">Q7</p>
+    <h2>特殊な和了状況はありますか？</h2>
+    <div class="options-grid" style="grid-template-columns:1fr 1fr">
+      <button class="option-btn selected" data-special="none">なし</button>
+      <button class="option-btn" data-special="haitei">海底（最後のツモ）</button>
+      <button class="option-btn" data-special="houtei">河底（最後のロン）</button>
+      <button class="option-btn" data-special="rinshan">嶺上開花</button>
+      <button class="option-btn" data-special="chankan">槍槓</button>
+    </div>
+  </div>
+
+  <!-- ナビ -->
+  <div style="display:flex;gap:8px;margin-top:16px">
+    <button id="q-back-btn" class="secondary-btn" style="width:auto;padding:12px 20px;">← 戻る</button>
+    <button id="q-next-btn" class="primary-btn" style="margin-top:0;flex:1" disabled>次へ</button>
+  </div>
+</div>
+
+<!-- ======== 画面3: 結果 ======== -->
+<div id="screen-result" class="screen">
+  <div id="result-container"></div>
+  <button id="restart-btn" class="secondary-btn">もう一度計算する</button>
+</div>
+
+<!-- ======== 牌ピッカー（全画面共通） ======== -->
+<div id="tile-picker-overlay" class="tile-picker-overlay">
+  <div class="tile-picker">
+    <div class="tile-picker-header">
+      <h2 id="picker-title">牌を選んでください</h2>
+      <button id="picker-close" class="close-btn">×</button>
+    </div>
+    <div class="tile-picker-tabs">
+      <button class="suit-tab tab-btn active" data-suit="m">萬子</button>
+      <button class="suit-tab tab-btn" data-suit="p">筒子</button>
+      <button class="suit-tab tab-btn" data-suit="s">索子</button>
+      <button class="suit-tab tab-btn" data-suit="z">字牌</button>
+    </div>
+    <div id="picker-grid" class="tile-picker-grid"></div>
+  </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

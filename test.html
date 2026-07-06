@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麻雀点数計算 テスト</title>
+  <style>
+    body { font-family: monospace; background: #111; color: #eee; padding: 16px; max-width: 800px; margin: 0 auto; }
+    h1 { color: #f5a623; margin-bottom: 8px; }
+    h2 { color: #e94560; margin: 24px 0 8px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+    h3 { color: #aaa; margin: 16px 0 6px; }
+    .pass { color: #4caf50; }
+    .fail { color: #f44336; }
+    .warn { color: #ff9800; }
+    .case { background: #1a1a2e; border: 1px solid #2a4a7f; border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .case-title { font-size: 15px; font-weight: bold; margin-bottom: 8px; color: #f5a623; }
+    .result-row { display: flex; gap: 12px; margin: 4px 0; font-size: 13px; }
+    .label { color: #888; min-width: 100px; }
+    .value { color: #fff; }
+    .expected { color: #4caf50; }
+    .actual-pass { color: #4caf50; font-weight: bold; }
+    .actual-fail { color: #f44336; font-weight: bold; }
+    .step { background: #0f3460; border-radius: 6px; padding: 10px; margin: 6px 0; font-size: 13px; line-height: 1.7; }
+    .step .num { color: #f5a623; font-weight: bold; }
+    .tile-list { background: #000; color: #fff; padding: 8px 12px; border-radius: 4px; font-size: 14px; letter-spacing: 2px; margin: 4px 0; display: inline-block; }
+    .summary { background: #1a1a2e; border: 2px solid #f5a623; border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 16px; }
+    table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 13px; }
+    th { background: #0f3460; padding: 8px; text-align: left; }
+    td { padding: 8px; border-bottom: 1px solid #222; }
+    .note { color: #888; font-size: 12px; margin-top: 4px; }
+    .section-manual { background: #1a2a1a; border: 1px solid #2a5a2a; border-radius: 8px; padding: 14px; margin: 12px 0; }
+  </style>
+</head>
+<body>
+
+<h1>🀄 麻雀点数計算 テストスイート</h1>
+<p style="color:#888;font-size:13px;">上部: 自動テスト（エンジン直接実行）／下部: 手動テスト手順書</p>
+
+<h2>▶ 自動テスト結果</h2>
+<div id="auto-results">実行中...</div>
+<div id="summary" class="summary" style="display:none"></div>
+
+<h2>📋 手動テスト手順書</h2>
+<p style="color:#888;font-size:13px;">アプリ（<a href="http://localhost:3000" style="color:#4caf50">http://localhost:3000</a>）を開いて以下を順番に確認してください</p>
+
+<!-- ===== ケース1 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 1】タンヤオ + 平和　子ロン　期待値: 2000点</div>
+  <div class="step">
+    <span class="num">① 手牌入力（14枚）</span><br>
+    <span class="tile-list">2m 3m 4m 5p 6p 7p 3s 4s 5s 6s 7s 8s 2s 2s</span><br>
+    <span class="note">※ 入力順は自由。グリッドの14マスに1枚ずつタップして選択</span>
+  </div>
+  <div class="step">
+    <span class="num">② 鳴き</span>　なし（追加しない）
+  </div>
+  <div class="step">
+    <span class="num">③「質問に進む」</span>をタップ
+  </div>
+  <div class="step">
+    <span class="num">④ Q1 和了牌</span>　<span class="tile-list">8s</span> をタップ
+  </div>
+  <div class="step">
+    <span class="num">⑤ Q2 ツモ/ロン</span>　<b>ロン</b> を選択
+  </div>
+  <div class="step">
+    <span class="num">⑥ Q3 親/子・自風・場風</span>　子 ／ 自風: 南 ／ 場風: 東場
+  </div>
+  <div class="step">
+    <span class="num">⑦ Q4 リーチ</span>　<b>なし</b>（デフォルト）
+  </div>
+  <div class="step">
+    <span class="num">⑧ Q5 ドラ</span>　なし（追加しない）、本場: 0
+  </div>
+  <div class="step">
+    <span class="num">⑨ Q6 鳴き</span>　<b>門前（鳴きなし）</b>を選択
+  </div>
+  <div class="step">
+    <span class="num">⑩ Q7 特殊状況</span>　<b>なし</b>（デフォルト）→「計算する」
+  </div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">2000点</td></tr>
+    <tr><td>翻・符</td><td class="expected">2翻 30符</td></tr>
+    <tr><td>成立役</td><td class="expected">タンヤオ(1翻) + 平和(1翻)</td></tr>
+    <tr><td>支払い（放銃者）</td><td class="expected">2000点</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース2 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 2】平和ツモ　子　期待値: 1500点（400/700）</div>
+  <div class="step">
+    <span class="num">① 手牌入力（14枚）</span><br>
+    <span class="tile-list">1m 2m 3m 5p 6p 7p 7s 8s 9s 3p 4p 5p 6p 6p</span><br>
+    <span class="note">※ 雀頭は6p6p。4p5pで3pを待つ両面待ち</span>
+  </div>
+  <div class="step">
+    <span class="num">④ Q1 和了牌</span>　<span class="tile-list">3p</span>（4p5p+3p=順子、両面待ち）
+  </div>
+  <div class="step"><span class="num">⑤ Q2</span>　<b>ツモ</b></div>
+  <div class="step"><span class="num">⑥ Q3</span>　子 ／ 自風: 南 ／ 場風: 東場</div>
+  <div class="step">Q4〜Q7 すべてデフォルト → 計算する</div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">1500点</td></tr>
+    <tr><td>翻・符</td><td class="expected">2翻 20符（平和ツモ固定）</td></tr>
+    <tr><td>成立役</td><td class="expected">平和(1翻) + 門前清自摸和(1翻)</td></tr>
+    <tr><td>支払い</td><td class="expected">子: 400点　親: 700点</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース3 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 3】リーチ一発ツモ + タンヤオ + 平和　子　期待値: 満貫 8000点</div>
+  <div class="step">
+    <span class="num">① 手牌入力（14枚）</span><br>
+    <span class="tile-list">2m 3m 4m 5p 6p 7p 3s 4s 5s 6s 7s 8s 2s 2s</span>
+  </div>
+  <div class="step"><span class="num">④ Q1</span>　<span class="tile-list">8s</span></div>
+  <div class="step"><span class="num">⑤ Q2</span>　<b>ツモ</b></div>
+  <div class="step"><span class="num">⑥ Q3</span>　子 ／ 自風: 南 ／ 場風: 東場</div>
+  <div class="step"><span class="num">⑦ Q4</span>　<b>リーチ</b> ＋ <b>一発あり</b></div>
+  <div class="step">Q5〜Q7 すべてデフォルト → 計算する</div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">8000点（満貫）</td></tr>
+    <tr><td>成立役</td><td class="expected">リーチ + 一発 + 門前清自摸和 + タンヤオ + 平和（計5翻）</td></tr>
+    <tr><td>支払い</td><td class="expected">子: 2000点　親: 4000点</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース4 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 4】七対子　子ロン　期待値: 1600点</div>
+  <div class="step">
+    <span class="num">① 手牌入力（14枚）</span><br>
+    <span class="tile-list">1m 1m 3p 3p 5s 5s 1z 1z 2z 2z 3z 3z 7p 7p</span><br>
+    <span class="note">※ 各牌を2枚ずつ、7種類</span>
+  </div>
+  <div class="step"><span class="num">④ Q1</span>　<span class="tile-list">7p</span>（最後に入力した7p）</div>
+  <div class="step"><span class="num">⑤ Q2</span>　<b>ロン</b></div>
+  <div class="step"><span class="num">⑥ Q3</span>　子 ／ 自風: 南 ／ 場風: 東場</div>
+  <div class="step">Q4〜Q7 デフォルト → 計算する</div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">1600点</td></tr>
+    <tr><td>翻・符</td><td class="expected">2翻 25符（七対子固定）</td></tr>
+    <tr><td>成立役</td><td class="expected">七対子(2翻)</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース5 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 5】国士無双　子ロン　期待値: 32000点（役満）</div>
+  <div class="step">
+    <span class="num">① 手牌入力（14枚）</span><br>
+    <span class="tile-list">1m 9m 1p 9p 1s 9s 1z 2z 3z 4z 5z 6z 7z 7z</span><br>
+    <span class="note">※ 7z（中）を2枚、他は么九牌1枚ずつ</span>
+  </div>
+  <div class="step"><span class="num">④ Q1</span>　<span class="tile-list">7z</span></div>
+  <div class="step"><span class="num">⑤ Q2</span>　<b>ロン</b></div>
+  <div class="step"><span class="num">⑥ Q3</span>　子 ／ 自風: 南 ／ 場風: 東場</div>
+  <div class="step">Q4〜Q7 デフォルト → 計算する</div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">32000点（役満）</td></tr>
+    <tr><td>成立役</td><td class="expected">国士無双</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース6 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 6】役牌（中）ポンあり　子ロン　期待値: 1000点</div>
+  <div class="step">
+    <span class="num">① 手牌入力（11枚 ＋ 鳴き1組）</span><br>
+    手牌: <span class="tile-list">2m 3m 4m 5p 6p 7p 2s 3s 4s 6s 6s</span><br>
+    <span class="note">（11枚のみグリッドに入力する）</span>
+  </div>
+  <div class="step">
+    <span class="num">② 鳴きを追加</span><br>
+    「ポン」を選択 → 牌を3枚: <span class="tile-list">7z 7z 7z</span>（中）→「この鳴きを追加」
+  </div>
+  <div class="step"><span class="num">④ Q1</span>　<span class="tile-list">6s</span>（単騎待ち）</div>
+  <div class="step"><span class="num">⑤ Q2</span>　<b>ロン</b></div>
+  <div class="step"><span class="num">⑥ Q3</span>　子 ／ 自風: 南 ／ 場風: 東場</div>
+  <div class="step">Q4〜Q7 デフォルト、Q6は <b>鳴きあり</b> を選択 → 計算する</div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">1000点</td></tr>
+    <tr><td>翻・符</td><td class="expected">1翻 30符</td></tr>
+    <tr><td>成立役</td><td class="expected">役牌(中)(1翻)</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース7 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 7】役牌 + ドラ2　子ロン　期待値: 3900点</div>
+  <div class="step">Case 6 と同じ手牌・鳴きで進める</div>
+  <div class="step">
+    <span class="num">⑧ Q5 ドラ表示牌</span>　<span class="tile-list">5s</span> を追加<br>
+    <span class="note">（5sが表示牌 → 6sがドラ。雀頭6s6sがドラ2枚）</span>
+  </div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">3900点</td></tr>
+    <tr><td>翻数</td><td class="expected">役牌(1翻) + ドラ2 = 3翻</td></tr>
+    <tr><td>符</td><td class="expected">30符</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース8 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 8】四暗刻単騎　子ロン　期待値: 64000点（ダブル役満）</div>
+  <div class="step">
+    <span class="num">① 手牌入力（14枚）</span><br>
+    <span class="tile-list">1m 1m 1m 9p 9p 9p 5s 5s 5s 7z 7z 7z 3m 3m</span>
+  </div>
+  <div class="step"><span class="num">④ Q1</span>　<span class="tile-list">3m</span>（単騎待ち）</div>
+  <div class="step"><span class="num">⑤ Q2</span>　<b>ロン</b></div>
+  <div class="step"><span class="num">⑥ Q3</span>　子 ／ 自風: 南 ／ 場風: 東場</div>
+  <div class="step">Q4〜Q7 デフォルト → 計算する</div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">64000点（ダブル役満）</td></tr>
+    <tr><td>成立役</td><td class="expected">四暗刻単騎</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース9 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 9】親ツモ　満貫　期待値: 12000点（4000all）</div>
+  <div class="step">
+    <span class="num">① 手牌入力（14枚）</span><br>
+    <span class="tile-list">2m 3m 4m 5p 6p 7p 3s 4s 5s 6s 7s 8s 2s 2s</span>
+  </div>
+  <div class="step"><span class="num">④ Q1</span>　<span class="tile-list">8s</span></div>
+  <div class="step"><span class="num">⑤ Q2</span>　<b>ツモ</b></div>
+  <div class="step"><span class="num">⑥ Q3</span>　<b>親</b> ／ 自風: <b>東</b> ／ 場風: 東場</div>
+  <div class="step"><span class="num">⑦ Q4</span>　<b>リーチ</b>（一発なし）</div>
+  <div class="step">
+    <span class="num">⑧ Q5</span>　ドラ表示牌: <span class="tile-list">7s</span>（8sがドラ → 手牌に8s1枚）<br>
+    <span class="note">リーチ(1) + ツモ(1) + タンヤオ(1) + 平和(1) + ドラ(1) = 5翻 = 満貫</span>
+  </div>
+  <div class="step">Q6〜Q7 デフォルト → 計算する</div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">12000点（満貫）</td></tr>
+    <tr><td>成立役</td><td class="expected">リーチ + 門前清自摸和 + タンヤオ + 平和 + ドラ1（計5翻）</td></tr>
+    <tr><td>支払い</td><td class="expected">各子: 4000点（4000 all）</td></tr>
+  </table>
+</div>
+
+<!-- ===== ケース10 ===== -->
+<div class="section-manual">
+  <div class="case-title">【手動 Case 10】混一色（食い下がり）　子ロン　期待値: 3900点</div>
+  <div class="step">
+    <span class="num">① 手牌入力（11枚 ＋ 鳴き1組）</span><br>
+    手牌: <span class="tile-list">2m 3m 4m 5m 6m 7m 3m 4m 5m 2m 2m</span><br>
+    <span class="note">（2m×2, 3m×2, 4m×2, 5m×2, 6m×1, 7m×1 = 11枚。一気通貫にならない萬子のみ）</span>
+  </div>
+  <div class="step">
+    <span class="num">② 鳴きを追加</span>　ポン: <span class="tile-list">7z 7z 7z</span>（中）
+  </div>
+  <div class="step"><span class="num">④ Q1</span>　<span class="tile-list">2m</span>（単騎待ち）</div>
+  <div class="step"><span class="num">⑤ Q2</span>　<b>ロン</b></div>
+  <div class="step"><span class="num">⑥ Q3</span>　子 ／ 自風: 南 ／ 場風: 東場</div>
+  <div class="step">Q4〜Q7 デフォルト、Q6は <b>鳴きあり</b> → 計算する</div>
+  <table>
+    <tr><th>確認項目</th><th>期待値</th></tr>
+    <tr><td>点数</td><td class="expected">3900点</td></tr>
+    <tr><td>翻・符</td><td class="expected">3翻 30符</td></tr>
+    <tr><td>成立役</td><td class="expected">役牌(中)(1翻) + 混一色(食い下がり2翻)</td></tr>
+  </table>
+</div>
+
+<h2>📋 手動テスト手順書（特殊役・特殊状況 Case 11〜30）</h2>
+<p style="color:#888;font-size:13px;">下表は手動確認用のクイックリファレンスです。各ケースの入力牌・選択肢・期待値を記載しています。</p>
+
+<!-- 特殊役テーブル -->
+<table style="margin-bottom:16px">
+  <tr><th>No</th><th>役名</th><th>手牌（14枚/closedTiles）</th><th>鳴き</th><th>和了牌</th><th>ツモ/ロン</th><th>Q4リーチ</th><th>Q5本場</th><th>Q7特殊</th><th>期待値</th></tr>
+  <tr><td>11</td><td>三色同順（門前）</td><td class="tile-list">3m 3m 3m 2p 3p 4p 2s 3s 4s 2m 3m 4m 3z 3z</td><td>なし</td><td>3z</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">2600 (2翻40符)</td></tr>
+  <tr><td>12</td><td>三色同順（食い下がり）</td><td class="tile-list">3m 3m 3m 2p 3p 4p 2s 3s 4s 3z 3z</td><td>チー 2m3m4m</td><td>3z</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">1000 (1翻30符)</td></tr>
+  <tr><td>13</td><td>一気通貫（門前）</td><td class="tile-list">2p 2p 2p 1m 2m 3m 4m 5m 6m 7m 8m 9m 5p 5p</td><td>なし</td><td>5p</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">2600 (2翻40符)</td></tr>
+  <tr><td>14</td><td>一気通貫（食い下がり）</td><td class="tile-list">1m 2m 3m 4m 5m 6m 2p 2p 2p 5p 5p</td><td>チー 7m8m9m</td><td>5p</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">1000 (1翻30符)</td></tr>
+  <tr><td>15</td><td>対々和（鳴き）</td><td class="tile-list">6m 6m 6m 3p 3p 3p 3z 3z</td><td>ポン2p・ポン4s</td><td>3z</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">2600 (2翻40符)</td></tr>
+  <tr><td>16</td><td>三暗刻</td><td class="tile-list">2m 2m 2m 4p 4p 4p 6s 6s 6s 3m 4m 5m 1p 1p</td><td>なし</td><td>1p</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">3200 (2翻50符)</td></tr>
+  <tr><td>17</td><td>小三元（鳴き）</td><td class="tile-list">1m 2m 3m 4p 5p 6p 7z 7z</td><td>ポン5z・ポン6z</td><td>7z</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">8000（満貫）</td></tr>
+  <tr><td>18</td><td>大三元（鳴き）</td><td class="tile-list">7z 7z 7z 1m 2m 3m 5p 5p</td><td>ポン5z・ポン6z</td><td>5p</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">32000（役満）</td></tr>
+  <tr><td>19</td><td>字一色（七対子形）</td><td class="tile-list">1z 1z 2z 2z 3z 3z 4z 4z 5z 5z 6z 6z 7z 7z</td><td>なし</td><td>7z</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">32000（役満）</td></tr>
+  <tr><td>20</td><td>清老頭（鳴きあり）</td><td class="tile-list">9m 9m 9m 1p 1p 1p 9p 9p 9p 1s 1s</td><td>ポン1m</td><td>1s</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">32000（役満）</td></tr>
+  <tr><td>21</td><td>緑一色</td><td class="tile-list">2s 3s 4s 2s 3s 4s 6z 6z 6z 6s 6s 6s 8s 8s</td><td>なし</td><td>8s</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">32000（役満）</td></tr>
+  <tr><td>22</td><td>純正九蓮宝燈</td><td class="tile-list">1m 1m 1m 2m 3m 4m 5m 5m 6m 7m 8m 9m 9m 9m</td><td>なし</td><td>5m</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">64000（ダブル役満）</td></tr>
+  <tr><td>23</td><td>ダブルリーチ+タンヤオ+平和</td><td class="tile-list">2m 3m 4m 5p 6p 7p 3s 4s 5s 6s 7s 8s 2s 2s</td><td>なし</td><td>8s</td><td>ロン</td><td>ダブルリーチ</td><td>0</td><td>なし</td><td class="expected">8000（満貫）</td></tr>
+  <tr><td>24</td><td>海底摸月+タンヤオ+平和</td><td class="tile-list">2m 3m 4m 5p 6p 7p 3s 4s 5s 6s 7s 8s 2s 2s</td><td>なし</td><td>8s</td><td>ツモ</td><td>なし</td><td>0</td><td>海底</td><td class="expected">5200 (4翻20符)</td></tr>
+  <tr><td>25</td><td>本場2本場あり</td><td class="tile-list">2m 3m 4m 5p 6p 7p 3s 4s 5s 6s 7s 8s 2s 2s</td><td>なし</td><td>8s</td><td>ロン</td><td>なし</td><td>2</td><td>なし</td><td class="expected">2600 (2翻30符+600)</td></tr>
+  <tr><td>26</td><td>清一色（門前・刻子入り）</td><td class="tile-list">3m 3m 3m 2m 3m 4m 5m 6m 7m 8m 8m 8m 1m 1m</td><td>なし</td><td>1m</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">12000（跳満）</td></tr>
+  <tr><td>27</td><td>混老頭+対々和（鳴き）</td><td class="tile-list">1z 1z 1z 9s 9s 9s 5z 5z</td><td>ポン1m・ポン9p</td><td>5z</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">8000（満貫）</td></tr>
+  <tr><td>28</td><td>二盃口</td><td class="tile-list">1m 2m 3m 1m 2m 3m 6p 7p 8p 6p 7p 8p 5s 5s</td><td>なし</td><td>5s</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">5200 (3翻40符)</td></tr>
+  <tr><td>29</td><td>純全帯么九</td><td class="tile-list">1m 1m 1m 7m 8m 9m 1p 2p 3p 7s 8s 9s 9p 9p</td><td>なし</td><td>9s</td><td>ロン</td><td>なし</td><td>0</td><td>なし</td><td class="expected">5200 (3翻40符)</td></tr>
+  <tr><td>30</td><td>リーチ+裏ドラ</td><td class="tile-list">2m 3m 4m 5p 6p 7p 3s 4s 5s 6s 7s 8s 2s 2s</td><td>なし</td><td>8s</td><td>ロン</td><td>リーチ</td><td>0 ※裏ドラ表示牌: 7s</td><td>なし</td><td class="expected">8000（満貫）</td></tr>
+</table>
+
+<div class="section-manual">
+  <div class="case-title">手動テスト共通手順（Case 11〜30）</div>
+  <div class="step"><span class="num">① 手牌入力</span>　上表の「手牌」列の牌をグリッドにタップ入力。鳴きありの場合は「鳴きを追加」から指定種別で入力。</div>
+  <div class="step"><span class="num">②〜③</span>　「質問に進む」をタップ</div>
+  <div class="step"><span class="num">④ Q1</span>　上表の「和了牌」列の牌を選択</div>
+  <div class="step"><span class="num">⑤ Q2</span>　上表の「ツモ/ロン」列を選択</div>
+  <div class="step"><span class="num">⑥ Q3</span>　<b>子 ／ 自風: 南 ／ 場風: 東場</b>（全ケース共通）</div>
+  <div class="step"><span class="num">⑦ Q4</span>　上表の「Q4リーチ」列を選択（「なし」以外の場合のみ操作）</div>
+  <div class="step"><span class="num">⑧ Q5</span>　本場欄に上表「Q5本場」の数値を入力。Case 30は裏ドラ表示牌「7s（🀗）」を追加。</div>
+  <div class="step"><span class="num">⑨ Q6</span>　鳴きありの場合は「鳴きあり」、なければ「門前（鳴きなし）」</div>
+  <div class="step"><span class="num">⑩ Q7</span>　上表「Q7特殊」列（海底の場合は「海底（最後のツモ）」を選択）→「計算する」</div>
+  <div class="step">
+    <span class="num">【役牌の自風/場風について】</span><br>
+    Case 27（ポン1m,9p）の自風=南・場風=東では 1m,9p は一般牌なので役牌にはなりません。<br>
+    Case 15,16,23〜26,28〜30 も自風=南・場風=東で問題ありません。
+  </div>
+</div>
+
+<script type="module">
+import { calculate } from './js/engine.js';
+
+const cases = [
+  {
+    name: 'Case 1: タンヤオ + 平和　子ロン',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    expect: { total: 2000, han: 2, fu: 30 },
+  },
+  {
+    name: 'Case 2: 平和ツモ　子',
+    // 1m2m3m + 5p6p7p + 7s8s9s + 3p4p5p + pair6p6p, win3p(ryanmen)
+    // 一気通貫が起きない手牌（異なる3色）
+    hand: {
+      closedTiles: ['1m','2m','3m','5p','6p','7p','7s','8s','9s','3p','4p','5p','6p','6p'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '3p', isTsumo: true, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 平和(1) + ツモ(1) = 2翻20符固定 → 子ツモ [400,700] → 400*2+700=1500
+    expect: { total: 1500, han: 2, fu: 20 },
+  },
+  {
+    name: 'Case 3: リーチ一発ツモ + タンヤオ + 平和　子　満貫',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: true, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'riichi', isIppatsu: true,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    expect: { total: 8000, limitName: '満貫' },
+  },
+  {
+    name: 'Case 4: 七対子　子ロン',
+    hand: {
+      closedTiles: ['1m','1m','3p','3p','5s','5s','1z','1z','2z','2z','3z','3z','7p','7p'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '7p', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    expect: { total: 1600, han: 2, fu: 25 },
+  },
+  {
+    name: 'Case 5: 国士無双　子ロン',
+    hand: {
+      closedTiles: ['1m','9m','1p','9p','1s','9s','1z','2z','3z','4z','5z','6z','7z','7z'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '7z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    expect: { total: 32000, isYakuman: true },
+  },
+  {
+    name: 'Case 6: 役牌(中)ポン　子ロン',
+    // 2m3m4m + 5p6p7p + 2s3s4s + pair6s6s + pon7z, win6s(tanki)
+    // 一気通貫・混一色が起きない手牌
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','2s','3s','4s','6s','6s'],
+      openMelds: [{ type: 'pon', tiles: ['7z','7z','7z'] }],
+    },
+    context: {
+      winTile: '6s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 役牌(中)1翻, 30符(基本20+明刻7z8+単騎2), 子ロン=1000
+    expect: { total: 1000, han: 1 },
+  },
+  {
+    name: 'Case 7: 役牌(中) + ドラ2　子ロン',
+    // Case6と同じ手牌。doraIndicator=5s → 6sがドラ、pair6s6s=ドラ2
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','2s','3s','4s','6s','6s'],
+      openMelds: [{ type: 'pon', tiles: ['7z','7z','7z'] }],
+    },
+    context: {
+      winTile: '6s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: ['5s'], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 役牌(1) + ドラ2 = 3翻30符 子ロン = 3900
+    expect: { total: 3900, han: 3 },
+  },
+  {
+    name: 'Case 8: 四暗刻単騎　子ロン　ダブル役満',
+    hand: {
+      closedTiles: ['1m','1m','1m','9p','9p','9p','5s','5s','5s','7z','7z','7z','3m','3m'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '3m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    expect: { total: 64000, isYakuman: true },
+  },
+  {
+    name: 'Case 9: 親ツモ満貫（リーチ+ツモ+タンヤオ+平和+ドラ1）',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: true, isDealer: true,
+      seatWind: '1z', roundWind: '1z',
+      riichi: 'riichi', isIppatsu: false,
+      doraIndicators: ['7s'], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    expect: { total: 12000, limitName: '満貫' },
+  },
+  {
+    name: 'Case 10: 混一色(食い下がり) + 役牌(中)　子ロン',
+    // 2m3m4m + 5m6m7m + 3m4m5m + pair2m2m + pon7z, win2m(tanki)
+    // 一気通貫が起きない萬子のみの手牌
+    hand: {
+      closedTiles: ['2m','3m','4m','5m','6m','7m','3m','4m','5m','2m','2m'],
+      openMelds: [{ type: 'pon', tiles: ['7z','7z','7z'] }],
+    },
+    context: {
+      winTile: '2m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 役牌(中)1翻 + 混一色(食い下がり)2翻 = 3翻30符 子ロン = 3900
+    expect: { total: 3900, han: 3 },
+  },
+
+  // ===== 特殊役・特殊状況ケース（Case 11〜30）=====
+  {
+    name: 'Case 11: 三色同順（門前）2翻40符 子ロン',
+    // 3m3m3m(刻子) + 2m3m4m + 2p3p4p + 2s3s4s + 3z3z(雀頭)
+    // 3z=西(字牌)でタンヤオ不成立。三色同順(2翻) 30符＋刻子8符＋単騎2符 = 40符
+    hand: {
+      closedTiles: ['3m','3m','3m','2p','3p','4p','2s','3s','4s','2m','3m','4m','3z','3z'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '3z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 三色同順(2翻) 40符 子ロン = 2600
+    expect: { total: 2600, han: 2, fu: 40 },
+  },
+  {
+    name: 'Case 12: 三色同順（鳴きあり）1翻30符 子ロン',
+    // チー2m3m4m(open) + 3m3m3m + 2p3p4p + 2s3s4s + 3z3z
+    hand: {
+      closedTiles: ['3m','3m','3m','2p','3p','4p','2s','3s','4s','3z','3z'],
+      openMelds: [{ type: 'chi', tiles: ['2m','3m','4m'] }],
+    },
+    context: {
+      winTile: '3z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 三色同順(食い下がり1翻) 30符 子ロン = 1000
+    expect: { total: 1000, han: 1, fu: 30 },
+  },
+  {
+    name: 'Case 13: 一気通貫（門前）2翻40符 子ロン',
+    // 2p2p2p(刻子) + 1m2m3m + 4m5m6m + 7m8m9m + 5p5p
+    hand: {
+      closedTiles: ['2p','2p','2p','1m','2m','3m','4m','5m','6m','7m','8m','9m','5p','5p'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '5p', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 一気通貫(2翻) 40符 子ロン = 2600
+    expect: { total: 2600, han: 2, fu: 40 },
+  },
+  {
+    name: 'Case 14: 一気通貫（鳴きあり）1翻30符 子ロン',
+    // チー7m8m9m(open) + 1m2m3m + 4m5m6m + 2p2p2p + 5p5p
+    hand: {
+      closedTiles: ['1m','2m','3m','4m','5m','6m','2p','2p','2p','5p','5p'],
+      openMelds: [{ type: 'chi', tiles: ['7m','8m','9m'] }],
+    },
+    context: {
+      winTile: '5p', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 一気通貫(食い下がり1翻) 30符 子ロン = 1000
+    expect: { total: 1000, han: 1, fu: 30 },
+  },
+  {
+    name: 'Case 15: 対々和（鳴きあり）2翻50符 子ロン',
+    // ポン2p(open) + ポン4s(open) + 6m6m6m + 3p3p3p + 3z3z(字牌でタンヤオ不成立)
+    hand: {
+      closedTiles: ['6m','6m','6m','3p','3p','3p','3z','3z'],
+      openMelds: [
+        { type: 'pon', tiles: ['2p','2p','2p'] },
+        { type: 'pon', tiles: ['4s','4s','4s'] },
+      ],
+    },
+    context: {
+      winTile: '3z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 対々和(2翻) 40符 子ロン = 2600
+    // 基本20+明刻2p(2)+明刻4s(2)+暗刻6m(4)+暗刻3p(4)+単騎3z(2)=34→40符
+    expect: { total: 2600, han: 2, fu: 40 },
+  },
+  {
+    name: 'Case 16: 三暗刻（門前ロン）2翻60符 子ロン',
+    // 2m2m2m + 4p4p4p + 6s6s6s(3暗刻) + 3m4m5m + 1p1p(端牌でタンヤオ不成立)
+    hand: {
+      closedTiles: ['2m','2m','2m','4p','4p','4p','6s','6s','6s','3m','4m','5m','1p','1p'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '1p', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 三暗刻(2翻) 50符 子ロン = 3200
+    // 基本30+暗刻2m(4)+暗刻4p(4)+暗刻6s(4)+単騎1p(2)=44→50符
+    expect: { total: 3200, han: 2, fu: 50 },
+  },
+  {
+    name: 'Case 17: 小三元（鳴きあり）満貫 子ロン',
+    // ポン白(open) + ポン発(open) + 1m2m3m + 4p5p6p + 中中(雀頭)
+    hand: {
+      closedTiles: ['1m','2m','3m','4p','5p','6p','7z','7z'],
+      openMelds: [
+        { type: 'pon', tiles: ['5z','5z','5z'] },
+        { type: 'pon', tiles: ['6z','6z','6z'] },
+      ],
+    },
+    context: {
+      winTile: '7z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 役牌(白)(1)+役牌(発)(1)+小三元(2)=4翻 40符 → 満貫
+    expect: { total: 8000, limitName: '満貫' },
+  },
+  {
+    name: 'Case 18: 大三元（鳴きあり）役満 子ロン',
+    // ポン白(open) + ポン発(open) + 中中中(暗刻) + 1m2m3m + 5p5p
+    hand: {
+      closedTiles: ['7z','7z','7z','1m','2m','3m','5p','5p'],
+      openMelds: [
+        { type: 'pon', tiles: ['5z','5z','5z'] },
+        { type: 'pon', tiles: ['6z','6z','6z'] },
+      ],
+    },
+    context: {
+      winTile: '5p', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 大三元(役満) 子ロン = 32000
+    expect: { total: 32000, isYakuman: true },
+  },
+  {
+    name: 'Case 19: 字一色（七対子形）役満 子ロン',
+    // 東東 南南 西西 北北 白白 発発 中中 → 七対子形で字一色
+    // 全刻子形にすると四暗刻単騎(ダブル役満)が優先されるため七対子形を使用
+    hand: {
+      closedTiles: ['1z','1z','2z','2z','3z','3z','4z','4z','5z','5z','6z','6z','7z','7z'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '7z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 字一色(役満) 子ロン = 32000
+    expect: { total: 32000, isYakuman: true },
+  },
+  {
+    name: 'Case 20: 清老頭（鳴きあり）役満 子ロン',
+    // ポン1m(open) + 9m9m9m + 1p1p1p + 9p9p9p + 1s1s
+    // 鳴きあり=門前でないため四暗刻チェックを回避し清老頭が検出される
+    hand: {
+      closedTiles: ['9m','9m','9m','1p','1p','1p','9p','9p','9p','1s','1s'],
+      openMelds: [{ type: 'pon', tiles: ['1m','1m','1m'] }],
+    },
+    context: {
+      winTile: '1s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 清老頭(役満) 子ロン = 32000
+    expect: { total: 32000, isYakuman: true },
+  },
+  {
+    name: 'Case 21: 緑一色（門前）役満 子ロン',
+    // 2s3s4s + 2s3s4s + 6s6s6s + 6z6z6z + 8s8s
+    hand: {
+      closedTiles: ['2s','3s','4s','2s','3s','4s','6z','6z','6z','6s','6s','6s','8s','8s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 緑一色(役満) 子ロン = 32000
+    expect: { total: 32000, isYakuman: true },
+  },
+  {
+    name: 'Case 22: 純正九蓮宝燈（ダブル役満）子ロン',
+    // 1m1m1m 2m3m4m 5m5m 6m7m8m 9m9m9m → 5mで和了
+    hand: {
+      closedTiles: ['1m','1m','1m','2m','3m','4m','5m','5m','6m','7m','8m','9m','9m','9m'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '5m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 純正九蓮宝燈(ダブル役満) 子ロン = 64000
+    expect: { total: 64000, isYakuman: true },
+  },
+  {
+    name: 'Case 23: ダブルリーチ + タンヤオ + 平和　満貫 子ロン',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'double', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // ダブルリーチ(2)+タンヤオ(1)+平和(1) = 4翻30符 → 満貫
+    expect: { total: 8000, limitName: '満貫' },
+  },
+  {
+    name: 'Case 24: 海底摸月 + タンヤオ + 平和　4翻20符 子ツモ',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: true, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'haitei', honba: 0, allowKuitan: true,
+    },
+    // タンヤオ(1)+平和(1)+ツモ(1)+海底(1) = 4翻20符(平和ツモ固定) 子ツモ → 1300+1300+2600 = 5200
+    expect: { total: 5200, han: 4, fu: 20 },
+  },
+  {
+    name: 'Case 25: 本場2本場あり　2翻30符 子ロン',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 2, allowKuitan: true,
+    },
+    // タンヤオ+平和 2翻30符=2000 + 本場2×300=600 → 2600
+    expect: { total: 2600, han: 2 },
+  },
+  {
+    name: 'Case 26: 清一色（門前ロン）跳満 子ロン',
+    // 3m3m3m(刻子) + 2m3m4m + 5m6m7m + 8m8m8m(刻子) + 1m1m(単騎)
+    // 1-3/4-6/7-9を揃えず一気通貫・平和・一盃口が付かない清一色
+    hand: {
+      closedTiles: ['3m','3m','3m','2m','3m','4m','5m','6m','7m','8m','8m','8m','1m','1m'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '1m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 清一色(6翻) → 跳満 子ロン = 12000
+    expect: { total: 12000, limitName: '跳満' },
+  },
+  {
+    name: 'Case 27: 混老頭 + 対々和（鳴きあり）満貫 子ロン',
+    // ポン1m(open) + ポン9p(open) + 1z1z1z + 9s9s9s + 5z5z
+    hand: {
+      closedTiles: ['1z','1z','1z','9s','9s','9s','5z','5z'],
+      openMelds: [
+        { type: 'pon', tiles: ['1m','1m','1m'] },
+        { type: 'pon', tiles: ['9p','9p','9p'] },
+      ],
+    },
+    context: {
+      winTile: '5z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 対々和(2)+混老頭(2) = 4翻 80符 → 満貫
+    expect: { total: 8000, limitName: '満貫' },
+  },
+  {
+    name: 'Case 28: 二盃口（門前ロン）3翻40符 子ロン',
+    // 1m2m3m + 1m2m3m + 6p7p8p + 6p7p8p + 5s5s
+    hand: {
+      closedTiles: ['1m','2m','3m','1m','2m','3m','6p','7p','8p','6p','7p','8p','5s','5s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '5s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 二盃口(3翻) 40符 子ロン = 5200
+    expect: { total: 5200, han: 3, fu: 40 },
+  },
+  {
+    name: 'Case 29: 純全帯么九（門前ロン）3翻50符 子ロン',
+    // 1m1m1m + 7m8m9m + 1p2p3p + 7s8s9s + 9p9p
+    hand: {
+      closedTiles: ['1m','1m','1m','7m','8m','9m','1p','2p','3p','7s','8s','9s','9p','9p'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '9s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 純全帯么九(3翻) 40符 子ロン = 5200
+    // 基本30+暗刻1m端牌(8)+両面9s(0)=38→40符
+    expect: { total: 5200, han: 3, fu: 40 },
+  },
+  // ===== 待ち形・特殊ケース（Case 31〜38）=====
+  {
+    name: 'Case 31: 嵌張待ち + タンヤオ　1翻40符 子ロン',
+    // 2m3m4m + 5m[6m]7m(嵌張) + 2p3p4p + 5s6s7s + 8s8s
+    // kanchan: seq5m6m7mの中間牌6mで和了 → 平和不成立 → 30+2(嵌張)=32→40符
+    hand: {
+      closedTiles: ['2m','3m','4m','5m','6m','7m','2p','3p','4p','5s','6s','7s','8s','8s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '6m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // タンヤオ(1翻) 40符(基本30+嵌張2=32→40) 子ロン = 1300
+    expect: { total: 1300, han: 1, fu: 40 },
+  },
+  {
+    name: 'Case 32: 辺張待ち + 一気通貫　2翻40符 子ロン',
+    // 1s2s[3s](辺張) + 4s5s6s + 7s8s9s(一気通貫) + 1m2m3m + 5p5p
+    // penchan: seq1s2s3sの端牌3sで和了(1-2待ち3) → 平和不成立
+    hand: {
+      closedTiles: ['1s','2s','3s','4s','5s','6s','7s','8s','9s','1m','2m','3m','5p','5p'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '3s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 一気通貫(2翻) 40符(基本30+辺張2=32→40) 子ロン = 2600
+    expect: { total: 2600, han: 2, fu: 40 },
+  },
+  {
+    name: 'Case 33: 双碰待ち（ロン）+ リーチ　1翻40符 子ロン',
+    // 2p3p4p + 5s5s5s(暗刻) + 9m9m9m(双碰ロン→明刻扱い) + 3z3z + 2s3s4s
+    // shanpon: 9m9m vs 3z3z で待ち、9mで和了 → tri9mは明刻(4符,端牌), tri5sは暗刻(4符)
+    hand: {
+      closedTiles: ['2p','3p','4p','5s','5s','5s','9m','9m','9m','3z','3z','2s','3s','4s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '9m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'riichi', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // リーチ(1翻) 40符(基本30+暗刻5s4+明刻9m[双碰]4+双碰0=38→40) 子ロン = 1300
+    expect: { total: 1300, han: 1, fu: 40 },
+  },
+  {
+    name: 'Case 34: 赤ドラ　タンヤオ + 赤ドラ1　2翻40符 子ロン',
+    // 3m4m[0m=赤5m] + 2p3p4p + 5s6s7s + 3s4s5s + 2s2s(単騎)
+    // 0m(赤ドラ)=5mとして扱い、タンヤオ成立 + 赤ドラ1翻
+    hand: {
+      closedTiles: ['3m','4m','0m','2p','3p','4p','5s','6s','7s','3s','4s','5s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '2s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // タンヤオ(1)+赤ドラ0m(1) = 2翻40符(基本30+単騎2=32→40) 子ロン = 2600
+    expect: { total: 2600, han: 2, fu: 40 },
+  },
+  {
+    name: 'Case 35: ダブル東（自風=場風）役牌×2翻　2翻30符 子ロン',
+    // ポン東(open) + 2m3m4m + 5p6p7p + 2s3s4s + 3z3z
+    // 自風=場風=東(1z) → 役牌(自風)+役牌(場風) = 2翻
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','2s','3s','4s','3z','3z'],
+      openMelds: [{ type: 'pon', tiles: ['1z','1z','1z'] }],
+    },
+    context: {
+      winTile: '3z', isTsumo: false, isDealer: false,
+      seatWind: '1z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 役牌(自風東)(1)+役牌(場風東)(1) = 2翻30符(基本20+明刻1z4+単騎3z2=26→30) = 2000
+    expect: { total: 2000, han: 2, fu: 30 },
+  },
+  {
+    name: 'Case 36: 混全帯么九（門前）2翻40符 子ロン',
+    // 1m2m3m + 7p8p9p + 1s2s3s + 7s8s9s + 1z1z(単騎)
+    // 全面子に么九牌あり・順子あり・字牌あり → 混全帯么九(チャンタ)
+    hand: {
+      closedTiles: ['1m','2m','3m','7p','8p','9p','1s','2s','3s','7s','8s','9s','1z','1z'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '1z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 混全帯么九(2翻) 40符(基本30+雀頭東2+単騎2=34→40) 子ロン = 2600
+    expect: { total: 2600, han: 2, fu: 40 },
+  },
+  {
+    name: 'Case 37: 河底撈魚　1翻40符 子ロン',
+    // 1m2m3m+4p5p6p+7s8s9s+5m6m7m + 3z3z(単騎) specialSituation:'houtei' → 河底撈魚のみ
+    // 待ち: 3z(単騎) → 30+2(単騎) = 40符
+    hand: {
+      closedTiles: ['1m','2m','3m','4p','5p','6p','7s','8s','9s','5m','6m','7m','3z','3z'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '3z', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'houtei', honba: 0, allowKuitan: true,
+    },
+    // 河底撈魚(1翻) 40符(基本30+単騎2=32→40) 子ロン = 1300
+    expect: { total: 1300, han: 1, fu: 40 },
+  },
+  {
+    name: 'Case 38: ドラ表示牌ラップ（中→白）+ リーチ　3翻40符 子ロン',
+    // doraIndicator=中(7z) → ドラ=白(5z) [字牌三元牌サイクル: 白→発→中→白]
+    // 雀頭5z5zを持ち、7zを表示牌とすることで白がドラ2枚扱い
+    hand: {
+      closedTiles: ['2m','3m','4m','4p','5p','6p','7s','8s','9s','2s','3s','4s','5z','5z'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '9s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'riichi', isIppatsu: false,
+      doraIndicators: ['7z'], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // リーチ(1)+ドラ白×2(2) = 3翻40符(基本30+雀頭白2+両面0=32→40) 子ロン = 5200
+    // ※ 7z(中)表示牌→ドラは5z(白)。バグ時は中がドラになり得点0
+    expect: { total: 5200, han: 3, fu: 40 },
+  },
+  {
+    name: 'Case 30: リーチ + 裏ドラ1枚　満貫 子ロン',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'riichi', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: ['7s'],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // リーチ(1)+タンヤオ(1)+平和(1)+裏ドラ1 = 4翻30符 → 満貫
+    // 裏ドラ表示牌7s → ドラ8s → 和了牌8sが裏ドラ1枚
+    expect: { total: 8000, limitName: '満貫' },
+  },
+  // ===== 親ロン・親ツモ (Cases 39-40) =====
+  {
+    name: 'Case 39: 親ロン タンヤオ+平和　2翻30符 RON_DEALER=2900',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: false, isDealer: true,
+      seatWind: '1z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // タンヤオ(1)+平和(1) = 2翻30符 親ロン → RON_DEALER[2][30] = 2900
+    expect: { total: 2900, han: 2, fu: 30 },
+  },
+  {
+    name: 'Case 40: 親ツモ タンヤオ+平和　3翻20符 TSUMO_DEALER=3900',
+    hand: {
+      closedTiles: ['2m','3m','4m','5p','6p','7p','3s','4s','5s','6s','7s','8s','2s','2s'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '8s', isTsumo: true, isDealer: true,
+      seatWind: '1z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // タンヤオ(1)+平和(1)+門前ツモ(1) = 3翻20符(平和ツモ固定) 親ツモ → TSUMO_DEALER[3][20]=1300×3=3900
+    expect: { total: 3900, han: 3, fu: 20 },
+  },
+  // ===== 槓子符 (Cases 41-42) =====
+  // ※ calcFu が quad に base*4*closedMult を正しく適用するかを検証
+  // 暗槓(closed=true): 中張=2×4×2=16符　明槓(closed=false): 中張=2×4×1=8符
+  // total=15牌（ankan4+pon3+closed8）: validateHandは別関数なのでcalculate()は動作する
+  {
+    name: 'Case 41: 暗槓符　中張暗槓(16符) + 役牌中　1翻50符 子ロン',
+    hand: {
+      closedTiles: ['2m','3m','4m','4p','5p','6p','5s','5s'],
+      openMelds: [
+        { type: 'ankan', tiles: ['3s','3s','3s','3s'] },
+        { type: 'pon',   tiles: ['7z','7z','7z'] },
+      ],
+    },
+    context: {
+      winTile: '5s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 役牌中(1翻) 50符(基本20+暗槓3s中張16+明刻7z4+単騎5s2=42→50) 子ロン = 1600
+    expect: { total: 1600, han: 1, fu: 50 },
+  },
+  {
+    name: 'Case 42: 明槓符　中張明槓(8符) + 役牌中　1翻40符 子ロン',
+    hand: {
+      closedTiles: ['2m','3m','4m','4p','5p','6p','5s','5s'],
+      openMelds: [
+        { type: 'minkan', tiles: ['3s','3s','3s','3s'] },
+        { type: 'pon',    tiles: ['7z','7z','7z'] },
+      ],
+    },
+    context: {
+      winTile: '5s', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 役牌中(1翻) 40符(基本20+明槓3s中張8+明刻7z4+単騎5s2=34→40) 子ロン = 1300
+    // 暗槓(Case41:50符1600)との差: closed=false→2倍なし=8符(vs16符)
+    expect: { total: 1300, han: 1, fu: 40 },
+  },
+  // ===== 倍満・三倍満 (Cases 43-44) =====
+  {
+    name: 'Case 43: 倍満　清一色+リーチ+暗刻+ドラ1 8翻40符 子ロン',
+    // 1m1m(pair) + 2m3m4m + 3m3m3m(暗刻) + 5m6m7m + 7m8m9m  清一色
+    // 平和なし(暗刻あり), 一気通貫なし(1-4-7揃わず), 一盃口なし(重複seq無し)
+    hand: {
+      closedTiles: ['1m','1m','3m','3m','3m','2m','3m','4m','5m','6m','7m','7m','8m','9m'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '9m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'riichi', isIppatsu: false,
+      doraIndicators: ['3m'], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 清一色(6)+リーチ(1)+ドラ1(3m→4m×1) = 8翻40符 → 倍満 子ロン = 16000
+    // ※暗刻3m(4符)あり→平和不成立。doraInd=3m→ドラ=4m(1枚)
+    expect: { total: 16000, limitName: '倍満' },
+  },
+  {
+    name: 'Case 44: 三倍満　清一色+リーチ+平和+一気通貫+一盃口 11翻 子ロン',
+    // 1m1m(pair) + 1m2m3m + 4m5m6m×2(一盃口) + 7m8m9m  清一色・平和・一気通貫・一盃口
+    // ※一気通貫(1-4-7全seq) + 一盃口(4m5m6m×2) が自動検出される
+    hand: {
+      closedTiles: ['1m','2m','3m','4m','5m','6m','7m','8m','9m','4m','5m','6m','1m','1m'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '9m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'riichi', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 清一色(6)+リーチ(1)+平和(1)+一気通貫(2)+一盃口(1) = 11翻 → 三倍満 子ロン = 24000
+    expect: { total: 24000, limitName: '三倍満' },
+  },
+  // ===== 三色同刻 (Case 45) =====
+  {
+    name: 'Case 45: 三色同刻 + タンヤオ　3翻30符 子ロン',
+    // pon5m(open)+pon5p(open)+5s5s5s(closed暗刻)+2s3s4s+3m3m(単騎)
+    hand: {
+      closedTiles: ['5s','5s','5s','2s','3s','4s','3m','3m'],
+      openMelds: [
+        { type: 'pon', tiles: ['5m','5m','5m'] },
+        { type: 'pon', tiles: ['5p','5p','5p'] },
+      ],
+    },
+    context: {
+      winTile: '3m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // タンヤオ(1)+三色同刻(2)=3翻 30符(基本20+明刻5m2+明刻5p2+暗刻5s4+単騎3m2=30) 子ロン=3900
+    expect: { total: 3900, han: 3, fu: 30 },
+  },
+  // ===== 小四喜・大四喜 (Cases 46-47) =====
+  {
+    name: 'Case 46: 小四喜　役満 子ロン',
+    // pon東(open)+pon南(open)+pon西(open) + 北北(pair) + 2m3m4m
+    hand: {
+      closedTiles: ['4z','4z','2m','3m','4m'],
+      openMelds: [
+        { type: 'pon', tiles: ['1z','1z','1z'] },
+        { type: 'pon', tiles: ['2z','2z','2z'] },
+        { type: 'pon', tiles: ['3z','3z','3z'] },
+      ],
+    },
+    context: {
+      winTile: '4m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 小四喜: 東南西(刻子)×3+北(雀頭) → 役満 子ロン = 32000
+    expect: { total: 32000, isYakuman: true },
+  },
+  {
+    name: 'Case 47: 大四喜　ダブル役満 子ロン',
+    // pon東(open)+pon南(open)+pon西(open)+pon北(open) + 2m2m(pair)
+    hand: {
+      closedTiles: ['2m','2m'],
+      openMelds: [
+        { type: 'pon', tiles: ['1z','1z','1z'] },
+        { type: 'pon', tiles: ['2z','2z','2z'] },
+        { type: 'pon', tiles: ['3z','3z','3z'] },
+        { type: 'pon', tiles: ['4z','4z','4z'] },
+      ],
+    },
+    context: {
+      winTile: '2m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 大四喜: 東南西北全刻子 → ダブル役満 子ロン = 64000
+    expect: { total: 64000, isYakuman: true },
+  },
+  // ===== 嶺上開花 (Case 48) =====
+  {
+    name: 'Case 48: 嶺上開花 + 役牌中　2翻50符 子ツモ',
+    // ankan5m(closed槓)+pon中(open) + 2p3p4p+5s6s7s+9s9s(単騎)
+    // total=15牌(4+3+8): calculate()はvalidateHand()を呼ばないため動作する
+    hand: {
+      closedTiles: ['2p','3p','4p','5s','6s','7s','9s','9s'],
+      openMelds: [
+        { type: 'ankan', tiles: ['5m','5m','5m','5m'] },
+        { type: 'pon',   tiles: ['7z','7z','7z'] },
+      ],
+    },
+    context: {
+      winTile: '9s', isTsumo: true, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'rinshan', honba: 0, allowKuitan: true,
+    },
+    // 嶺上開花(1)+役牌中(1)=2翻 50符(基本20+暗槓5m16+明刻7z4+単騎9s2+ツモ2=44→50)
+    // 子ツモ TSUMO_CHILD[2][50]=[800,1600] → 1600+800+800=3200
+    expect: { total: 3200, han: 2, fu: 50 },
+  },
+  // ===== 四暗刻（ロン双碰）= 通常役満(non-tanki) (Case 49) =====
+  {
+    name: 'Case 49: 四暗刻（双碰ロン）役満 子ロン',
+    // 3m3m3m+5p5p5p+7s7s7s+9m9m9m + 5z5z(双碰待ち) → winTile=9m
+    // shanpon(双碰)ロン: 四暗刻単騎(26翻)ではなく四暗刻(13翻)役満
+    hand: {
+      closedTiles: ['3m','3m','3m','5p','5p','5p','7s','7s','7s','9m','9m','9m','5z','5z'],
+      openMelds: [],
+    },
+    context: {
+      winTile: '9m', isTsumo: false, isDealer: false,
+      seatWind: '2z', roundWind: '1z',
+      riichi: 'none', isIppatsu: false,
+      doraIndicators: [], uraDoraIndicators: [],
+      specialSituation: 'none', honba: 0, allowKuitan: true,
+    },
+    // 四暗刻: 待ち=双碰(shanpon) → suuAnkou(13翻) ≠ suuAnkouTanki(26翻) → 役満=32000
+    expect: { total: 32000, isYakuman: true },
+  },
+];
+
+function check(result, expect) {
+  const failures = [];
+  if (!result.isValid) return [`役なし or 和了不可: ${result.reason}`];
+  for (const [key, val] of Object.entries(expect)) {
+    const actual = result[key];
+    if (actual !== val) failures.push(`${key}: 期待=${val} 実際=${actual}`);
+  }
+  return failures;
+}
+
+let passed = 0, failed = 0;
+const container = document.getElementById('auto-results');
+container.innerHTML = '';
+
+for (const c of cases) {
+  const result = calculate(c.hand, c.context);
+  const failures = check(result, c.expect);
+  const ok = failures.length === 0;
+  if (ok) passed++; else failed++;
+
+  const div = document.createElement('div');
+  div.className = 'case';
+  const icon = ok ? '✅' : '❌';
+  const yakuNames = result.isValid ? result.yakuList.map(y => y.name + '(' + (y.isYakuman ? '役満' : y.han + '翻') + ')').join(' / ') : '-';
+  div.innerHTML = `
+    <div class="case-title">${icon} ${c.name}</div>
+    <div class="result-row">
+      <span class="label">点数</span>
+      <span class="value">${result.isValid ? result.total?.toLocaleString() + '点' : '－'}</span>
+      <span class="expected">期待: ${c.expect.total?.toLocaleString() ?? '-'}点</span>
+    </div>
+    ${c.expect.han !== undefined ? `<div class="result-row"><span class="label">翻</span><span class="value">${result.han ?? '-'}</span><span class="expected">期待: ${c.expect.han}</span></div>` : ''}
+    ${c.expect.fu !== undefined ? `<div class="result-row"><span class="label">符</span><span class="value">${result.fu ?? '-'}</span><span class="expected">期待: ${c.expect.fu}</span></div>` : ''}
+    <div class="result-row"><span class="label">役</span><span class="value" style="font-size:12px">${yakuNames}</span></div>
+    ${failures.length > 0 ? `<div class="result-row"><span class="fail">不一致: ${failures.join(' / ')}</span></div>` : ''}
+  `;
+  container.appendChild(div);
+}
+
+const summary = document.getElementById('summary');
+summary.style.display = 'block';
+summary.innerHTML = `
+  自動テスト結果: <span class="pass">${passed}件 PASS</span> / <span class="${failed > 0 ? 'fail' : 'pass'}">${failed}件 FAIL</span>
+  ${failed > 0 ? '<br><span class="warn">❌ のケースはエンジンのバグです。結果を共有してください。</span>' : '<br><span class="pass">🎉 全ケース正常です！</span>'}
+`;
+</script>
+</body>
+</html>
