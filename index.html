@@ -15,7 +15,7 @@
 
 <!-- ======== 画面1: 手牌入力 ======== -->
 <div id="screen-input" class="screen active">
-  <p class="hint-text">牌をタップして手牌を入力してください</p>
+  <p class="hint-text">下のパレットから牌をタップして追加 ／ 手牌の牌をタップで削除</p>
 
   <div id="hand-grid" class="hand-grid"></div>
   <div id="hand-error" class="error-msg" style="min-height:24px;"></div>
@@ -41,6 +41,17 @@
   </div>
 
   <button id="to-questions-btn" class="primary-btn" disabled>質問に進む →</button>
+
+  <!-- インラインパレット（画面下部固定） -->
+  <div id="inline-palette" class="inline-palette">
+    <div class="inline-palette-tabs">
+      <button class="inline-suit-tab active" data-isuit="m">萬</button>
+      <button class="inline-suit-tab" data-isuit="p">筒</button>
+      <button class="inline-suit-tab" data-isuit="s">索</button>
+      <button class="inline-suit-tab" data-isuit="z">字</button>
+    </div>
+    <div id="inline-palette-grid" class="inline-palette-grid"></div>
+  </div>
 </div>
 
 <!-- ======== 画面2: 質問フロー ======== -->

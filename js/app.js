@@ -81,15 +81,17 @@ function renderHandInput() {
   while (state.closedTiles.length > closedSlots) state.closedTiles.pop();
 
   state.closedTiles.forEach((tile, i) => {
-    const el = makeTileEl(tile, () => openPicker(t => {
-      state.closedTiles[i] = t;
+    // 入力済み牌: タップで削除 / 空スロット: クリック不可（パレットから追加）
+    const el = makeTileEl(tile, tile ? () => {
+      state.closedTiles[i] = null;
       renderHandInput();
-    }));
+    } : null);
     grid.appendChild(el);
   });
 
   renderMelds();
   updateHandError();
+  renderInlinePalette();
 }
 
 function renderMelds() {
@@ -129,7 +131,40 @@ function updateHandError() {
   btn.disabled = filled.length !== state.closedTiles.length || errs.length > 0;
 }
 
-// ---- 牌ピッカー ----
+// ---- インラインパレット ----
+let inlineSuit = 'm';
+
+function renderInlinePalette() {
+  const grid = document.getElementById('inline-palette-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const handFull = !state.closedTiles.includes(null);
+  const allUsed = [...state.closedTiles.filter(Boolean), ...state.openMelds.flatMap(m => m.tiles)];
+
+  // 正規化済み枚数カウント
+  const normCount = {};
+  allUsed.forEach(t => { const k = normalize(t); normCount[k] = (normCount[k] || 0) + 1; });
+  // 赤ドラは個別カウント（各1枚限定）
+  const redUsed = { '0m': 0, '0p': 0, '0s': 0 };
+  allUsed.forEach(t => { if (redUsed[t] !== undefined) redUsed[t]++; });
+
+  ALL_TILES.filter(t => getSuit(t) === inlineSuit).forEach(t => {
+    const isRed = t === '0m' || t === '0p' || t === '0s';
+    const used = isRed ? redUsed[t] : (normCount[normalize(t)] || 0);
+    const limit = isRed ? 1 : 4;
+    const unavailable = handFull || used >= limit;
+
+    const el = makeTileEl(t, unavailable ? null : () => {
+      const idx = state.closedTiles.indexOf(null);
+      if (idx !== -1) { state.closedTiles[idx] = t; renderHandInput(); }
+    });
+    if (unavailable) el.classList.add('unavailable');
+    grid.appendChild(el);
+  });
+}
+
+// ---- 牌ピッカー（ドラ・鳴き選択用モーダル）----
 let pickerSuit = 'm';
 
 function openPicker(callback, title = '牌を選んでください') {
@@ -495,7 +530,17 @@ function init() {
 
   document.getElementById('to-questions-btn').addEventListener('click', startQuestions);
 
-  // 牌ピッカー
+  // インラインパレットのスーツタブ
+  document.querySelectorAll('.inline-suit-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      inlineSuit = btn.dataset.isuit;
+      document.querySelectorAll('.inline-suit-tab').forEach(b =>
+        b.classList.toggle('active', b.dataset.isuit === inlineSuit));
+      renderInlinePalette();
+    });
+  });
+
+  // 牌ピッカー（ドラ・鳴き用モーダル）
   document.getElementById('picker-close').addEventListener('click', closePicker);
   document.getElementById('tile-picker-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('tile-picker-overlay')) closePicker();
@@ -613,6 +658,9 @@ function init() {
       isIppatsu: false, doraIndicators: [], uraDoraIndicators: [],
       hasOpenMelds: null, specialSituation: 'none', honba: 0,
     });
+    inlineSuit = 'm';
+    document.querySelectorAll('.inline-suit-tab').forEach(b =>
+      b.classList.toggle('active', b.dataset.isuit === 'm'));
     renderHandInput();
     showScreen('screen-input');
   });
