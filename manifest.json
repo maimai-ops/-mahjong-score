@@ -1,0 +1,20 @@
+{
+  "name": "麻雀点数計算",
+  "short_name": "麻雀点数",
+  "description": "麻雀の点数を素早く計算するアプリ",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#e94560",
+  "orientation": "portrait-primary",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

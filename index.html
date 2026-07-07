@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>麻雀点数計算</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e94560">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -193,5 +196,10 @@
 </div>
 
 <script type="module" src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
+</script>
 </body>
 </html>
