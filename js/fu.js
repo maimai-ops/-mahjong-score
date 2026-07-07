@@ -50,7 +50,7 @@ function calcFu(decomp, context) {
 
   // 面子符（鳴き含む全面子）
   const normWinTile = normalize(winTile);
-  const allMelds = [...decomp.melds, ...decomp.openMelds];
+  const allMelds = [...decomp.melds, ...(decomp.openMelds || [])];
   for (const m of allMelds) {
     // 双碰ロンの場合、和了牌を含む刻子は明刻扱い（第3枚目が和了牌のため）
     let meld = m;

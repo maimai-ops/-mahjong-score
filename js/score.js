@@ -60,9 +60,8 @@ function getLimitLevel(han, fu, isYakuman) {
   if (han >= 8)  return 'baiman';
   if (han >= 6)  return 'haneman';
   if (han >= 5)  return 'mangan';
-  // 切り上げ満貫（オプション）は engine 側で処理
-  // 4翻30符以上、3翻70符以上は満貫
-  if (han === 4 && fu >= 30) return 'mangan';
+  // 4翻40符以上、3翻70符以上は満貫（30符/60符は点数表の値が8000未満なので除く）
+  if (han === 4 && fu >= 40) return 'mangan';
   if (han === 3 && fu >= 70) return 'mangan';
   return null;
 }
@@ -114,11 +113,21 @@ function calcScore({ han, fu, isDealer, isTsumo, isYakuman = false, honba = 0, a
   const hanTable = table[han];
   if (!hanTable) return null; // 表にない組み合わせ
 
-  // 切り上げ満貫チェック
+  // 切り上げ満貫チェック（点数表にない符数は満貫として扱う）
   if (allowKiriageMangan && hanTable[fu] === undefined) {
-    // 点数表の最大値以上なら満貫
-    return calcScore({ han, fu, isDealer, isTsumo, isYakuman: false, honba, allowKiriageMangan: false,
-      _forceMangan: true });
+    const s = LIMIT_SCORES.mangan;
+    if (isTsumo) {
+      if (isDealer) {
+        const perChild = s.dealerTsumo + honba * 100;
+        return { total: perChild * 3, payment: { allChild: perChild }, limitName: '満貫', han, fu: null };
+      } else {
+        const [fromChild, fromDealer] = s.childTsumo.map(v => v + honba * 100);
+        return { total: fromDealer + fromChild * 2, payment: { dealer: fromDealer, child: fromChild }, limitName: '満貫', han, fu: null };
+      }
+    } else {
+      const base = isDealer ? s.dealer : s.child;
+      return { total: base + honbaBonus, payment: { ron: base + honbaBonus }, limitName: '満貫', han, fu: null };
+    }
   }
 
   const baseScore = hanTable[fu];

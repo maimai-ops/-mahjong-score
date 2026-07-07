@@ -57,9 +57,12 @@ function calculate(hand, context) {
       fu = fuResult.fu;
       fuBreakdown = fuResult.breakdown;
 
-      // 平和ツモは20符固定
+      // 平和ツモは20符固定（ツモ符なし）
       const hasPinfu = yakuList.some(y => y.key === 'pinfu');
-      if (hasPinfu && isTsumo) fu = 20;
+      if (hasPinfu && isTsumo) {
+        fu = 20;
+        fuBreakdown = fuBreakdown.filter(b => b.label !== 'ツモ');
+      }
     }
 
     const scoreResult = calcScore({ han, fu, isDealer, isTsumo, isYakuman, honba, allowKiriageMangan });

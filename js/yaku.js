@@ -70,8 +70,8 @@ function allTiles(decomp) {
   } else if (decomp.type === 'chiitoitsu') {
     for (const p of decomp.pairs) tiles.push(...p.tiles);
   } else if (decomp.type === 'kokushi') {
-    // 国士は全幺九牌
-    return ['1m','9m','1p','9p','1s','9s','1z','2z','3z','4z','5z','6z','7z'];
+    const base = ['1m','9m','1p','9p','1s','9s','1z','2z','3z','4z','5z','6z','7z'];
+    return decomp.pairTile ? [...base, decomp.pairTile] : base;
   }
   for (const m of (decomp.openMelds || [])) tiles.push(...m.tiles);
   return tiles;
@@ -187,10 +187,6 @@ function detectYaku(decomp, context) {
   if (tiles.every(t => GREEN.has(t))) { add('ryuuiisou', 13); return result; }
 
   // 清老頭
-  if (tiles.every(t => isTerminal(t) || isHonor(t)) && tiles.every(t => !isHonor(t))) {
-    add('chinroutou', 13); return result;
-  }
-  // ↑修正: 清老頭は端牌のみ（字牌なし）
   if (tiles.every(t => isTerminal(t))) { add('chinroutou', 13); return result; }
 
   // 小四喜・大四喜
@@ -312,7 +308,7 @@ function detectYaku(decomp, context) {
   if (dragonTriCount === 2 && dragonPair) add('shousangen', 2);
 
   // 対々和
-  if (melds.every(m => m.type==='tri'||m.type==='quad') && decomp.melds.length > 0) add('toitoi', 2);
+  if (melds.every(m => m.type==='tri'||m.type==='quad') && melds.length > 0) add('toitoi', 2);
 
   // 三暗刻
   const closedTri = closedTriCount(decomp, winTile, isTsumo);
@@ -371,7 +367,7 @@ function detectYaku(decomp, context) {
   }
 
   // 混全帯么九（全面子に么九牌）
-  const allMeldsArr = [...decomp.melds, decomp.pair, ...decomp.openMelds];
+  const allMeldsArr = [...decomp.melds, decomp.pair, ...(decomp.openMelds || [])];
   const hasSeq = melds.some(m => m.type === 'seq');
   const allHaveYaochuInMeld = allMeldsArr.every(m =>
     m.tiles.some(isTerminalOrHonor)

@@ -84,6 +84,10 @@ function renderHandInput() {
     // 入力済み牌: タップで削除 / 空スロット: クリック不可（パレットから追加）
     const el = makeTileEl(tile, tile ? () => {
       state.closedTiles[i] = null;
+      // 和了牌として選択中の牌が手牌から全て消えた場合はリセット
+      if (state.winTile && !state.closedTiles.some(t => t && normalize(t) === normalize(state.winTile))) {
+        state.winTile = null;
+      }
       renderHandInput();
     } : null);
     grid.appendChild(el);
@@ -153,7 +157,8 @@ function renderInlinePalette() {
     const isRed = t === '0m' || t === '0p' || t === '0s';
     const used = isRed ? redUsed[t] : (normCount[normalize(t)] || 0);
     const limit = isRed ? 1 : 4;
-    const unavailable = handFull || used >= limit;
+    // 赤五牌は通常五牌の合計4枚上限も確認
+    const unavailable = handFull || used >= limit || (isRed && (normCount[normalize(t)] || 0) >= 4);
 
     const el = makeTileEl(t, unavailable ? null : () => {
       const idx = state.closedTiles.indexOf(null);
@@ -676,6 +681,8 @@ function init() {
     inlineSuit = 'm';
     document.querySelectorAll('.inline-suit-tab').forEach(b =>
       b.classList.toggle('active', b.dataset.isuit === 'm'));
+    const honbaEl = document.getElementById('honba-input');
+    if (honbaEl) honbaEl.value = 0;
     renderHandInput();
     showScreen('screen-input');
   });
