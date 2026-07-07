@@ -462,6 +462,21 @@ function renderResult(result) {
   }
   container.appendChild(scoreCard);
 
+  // Xシェアボタン
+  const scoreText = result.limitName
+    ? `${result.limitName} ${result.total.toLocaleString()}点`
+    : `${result.han}翻${result.fu}符 ${result.total.toLocaleString()}点`;
+  const yakuNames = result.yakuList.map(y => y.name).join('・');
+  const tweetText = encodeURIComponent(`【麻雀点数計算】${scoreText}！\n${yakuNames}\n`);
+  const tweetUrl = encodeURIComponent('https://maimai-ops.github.io/-mahjong-score/');
+  const shareLink = document.createElement('a');
+  shareLink.className = 'share-btn-x';
+  shareLink.href = `https://twitter.com/intent/tweet?text=${tweetText}&url=${tweetUrl}`;
+  shareLink.target = '_blank';
+  shareLink.rel = 'noopener noreferrer';
+  shareLink.textContent = '𝕏 でシェア';
+  container.appendChild(shareLink);
+
   // 支払い内訳
   if (result.payment) {
     const payCard = document.createElement('div');

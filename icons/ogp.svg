@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="serif">
+  <rect width="1200" height="630" fill="#1a1a2e"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#e94560"/>
+  <rect x="0" y="624" width="1200" height="6" fill="#e94560"/>
+
+  <!-- 左側タイル装飾 -->
+  <rect x="90" y="130" width="210" height="280" rx="22" fill="#f5e6c8" stroke="#c8a96e" stroke-width="7"/>
+  <text x="195" y="360" font-size="190" text-anchor="middle" fill="#1a1a1a">麻</text>
+
+  <!-- 右側タイル装飾（薄め） -->
+  <rect x="900" y="200" width="160" height="215" rx="16" fill="#f5e6c8" stroke="#c8a96e" stroke-width="5" opacity="0.35"/>
+  <text x="980" y="372" font-size="148" text-anchor="middle" fill="#1a1a1a" opacity="0.35">雀</text>
+
+  <!-- メインタイトル -->
+  <text x="640" y="230" font-size="96" text-anchor="middle" fill="#ffffff" font-weight="bold">麻雀点数計算</text>
+
+  <!-- アクセントライン -->
+  <rect x="420" y="258" width="440" height="4" fill="#e94560" rx="2"/>
+
+  <!-- 説明文 -->
+  <text x="640" y="340" font-size="44" text-anchor="middle" fill="#cccccc" font-family="sans-serif">手牌を入力するだけで瞬時に計算</text>
+  <text x="640" y="400" font-size="36" text-anchor="middle" fill="#f5a623" font-family="sans-serif">役・符・支払い内訳まで表示</text>
+
+  <!-- CTAボタン風 -->
+  <rect x="390" y="460" width="500" height="68" rx="34" fill="#e94560"/>
+  <text x="640" y="507" font-size="34" text-anchor="middle" fill="#ffffff" font-weight="bold" font-family="sans-serif">無料ウェブアプリを開く</text>
+</svg>

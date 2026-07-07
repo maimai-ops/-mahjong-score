@@ -48,6 +48,16 @@ body {
   z-index: 100;
 }
 .app-header h1 { font-size: 16px; font-weight: bold; }
+.bug-report-btn {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
 .back-btn {
   background: none; border: none; color: var(--text); font-size: 20px;
   cursor: pointer; padding: 4px 8px;
@@ -436,6 +446,21 @@ body {
   padding: 24px 20px;
   text-align: center;
   margin-bottom: 16px;
+}
+.share-btn-x {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 12px;
+  letter-spacing: 0.03em;
 }
 .result-limit { font-size: 20px; color: var(--accent2); font-weight: bold; margin-bottom: 6px; }
 .result-points { font-size: 40px; font-weight: bold; color: var(--text); }
